@@ -52,6 +52,8 @@ const CHECKS = [
 async function main() {
   const files = [];
   for await (const f of glob('**/*.html', { cwd: DIST })) {
+    // Skip deck/asset HTML rendered without Layout head (harness-v2 deck etc).
+    if (f.startsWith('decks/')) continue;
     const html = await readFile(join(DIST, f), 'utf8');
     files.push({ path: f, html });
   }

@@ -1,0 +1,182 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const landings = await getCollection('landings');
+  return landings.map(item => ({
+    params: { slug: item.slug },
+    props: { landing: item },
+  }));
+}
+
+interface Props {
+  landing: CollectionEntry<'landings'>;
+}
+
+const { landing } = Astro.props;
+const { Content } = await landing.render();
+---
+
+<Layout title={landing.data.title} description={landing.data.description}>
+  <div class="site-shell">
+
+    <header class="site-header">
+      <a href="/chengsan-ai/" class="brand">chengsan.ai</a>
+      <nav class="site-nav">
+        <a href="/chengsan-ai/">Index</a>
+        <a href="/chengsan-ai/notes/">Notes</a>
+        <a href="/chengsan-ai/landings/" aria-current="page">Landings</a>
+      </nav>
+    </header>
+
+    <main class="site-main">
+
+      <article class="landing-article">
+        <span class="kicker-accent">project</span>
+        <h1>{landing.data.title}</h1>
+        <p class="meta">
+          {landing.data.pubDate.toISOString().slice(0, 10)}
+          {landing.data.tags?.length > 0 && (
+            <>
+              <span class="dim"> · </span>
+              {landing.data.tags.join(', ')}
+            </>
+          )}
+        </p>
+
+        {landing.data.description && (
+          <p class="lead-marketing">{landing.data.description}</p>
+        )}
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        {landing.data.ctaUrl && landing.data.ctaLabel && (
+          <p class="external-cta">
+            <a class="btn btn-primary" href={landing.data.ctaUrl} target="_blank" rel="noopener">
+              {landing.data.ctaLabel}
+            </a>
+          </p>
+        )}
+      </article>
+
+      <hr class="calm-divider" />
+
+      <p><a href="/chengsan-ai/landings/">← 回到项目索引</a></p>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>chengsan.ai · 杨总 · AI Native</p>
+    </footer>
+
+  </div>
+</Layout>
+
+<style>
+  .landing-article .meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-md);
+  }
+  .meta .dim {
+    color: var(--color-text-subtle);
+  }
+  .lead-marketing {
+    font-family: var(--font-serif);
+    font-size: clamp(1.0625rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--color-text-muted);
+    max-width: 36rem;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: var(--space-md);
+    margin-bottom: var(--space-lg);
+  }
+  .external-cta {
+    margin-top: var(--space-lg);
+  }
+  .prose :global(p) {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-sm);
+  }
+  .prose :global(h2) {
+    font-family: var(--font-display);
+    margin: var(--space-lg) 0 var(--space-sm);
+    font-size: 1.5rem;
+  }
+  .prose :global(h3) {
+    font-family: var(--font-display);
+    margin: var(--space-md) 0 var(--space-xs);
+    font-size: 1.125rem;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.5rem;
+    margin-bottom: var(--space-sm);
+  }
+  .prose :global(a) {
+    color: var(--color-link);
+  }
+  .prose :global(blockquote) {
+    border-left: 2px solid var(--color-accent);
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    margin: var(--space-md) 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+  .prose :global(.calm-row) {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--space-sm) var(--space-md);
+    align-items: baseline;
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .prose :global(.calm-row .price) {
+    font-family: var(--font-mono);
+    color: var(--color-accent);
+    font-weight: 600;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .prose :global(.numeral) {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 800;
+    color: #ffffff;
+    margin: 0;
+  }
+  .prose :global(.numeral-card) {
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .prose :global(.zigzag) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    align-items: center;
+    padding: var(--space-lg) 0;
+    border-top: 1px solid var(--color-border);
+  }
+  .prose :global(.zigzag.right) {
+    grid-template-columns: 1fr 1fr;
+  }
+  .prose :global(.zigzag .lhs),
+  .prose :global(.zigzag .rhs) {
+    min-width: 0;
+  }
+  @media (max-width: 768px) {
+    .prose :global(.zigzag) {
+      grid-template-columns: 1fr;
+      gap: var(--space-md);
+    }
+  }
+</style>

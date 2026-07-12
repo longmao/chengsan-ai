@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI 开发的 Harness Engineering 实践 · v2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800;900&family=Geist+Mono:wght@400;500&display=swap');
+  :root{
+    --bg:#080c0c; --surface:#0b1111; --surface2:#0e1515; --border:#1a2422; --border2:#243330;
+    --text:#e7ecea; --dim:#7d8c89; --dim2:#566663;
+    --accent:#1ed1e9; --red:#ef4444; --green:#22c55e; --amber:#f59e0b; --violet:#8b5cf6;
+  }
+  *{ -webkit-font-smoothing:antialiased; box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ font-family:'Geist',system-ui,sans-serif; background:var(--bg); color:var(--text); }
+  .mono{ font-family:'Geist Mono',monospace; }
+
+  /* —— 全 deck 统一内容框：所有 slide 同宽、同左边距、左边对齐 —— */
+  .slide{ min-height:100vh; display:flex; align-items:center; padding:8rem 0; border-top:1px solid var(--border); }
+  .slide:first-child{ border-top:none; }
+  .frame{ width:100%; max-width:1080px; margin:0 auto; padding:0 clamp(1.5rem,5vw,3.5rem); }
+  .measure{ max-width:60ch; }
+
+  /* —— 结构元素（全是中性色，accent 只点一次）—— */
+  .rule{ width:44px; height:2px; background:var(--accent); margin-bottom:2rem; }   /* 签名笔触，仅 hero/summary */
+  .hair{ height:1px; background:var(--border2); }
+  .kicker{ font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); margin-bottom:1.6rem; }
+
+  /* 发丝线列表（替代 glass 卡） */
+  .row{ display:grid; grid-template-columns:150px 1fr; gap:2.5rem; padding:1.7rem 0; border-top:1px solid var(--border); align-items:baseline; }
+  .row:last-child{ border-bottom:1px solid var(--border); }
+  .row .lbl{ font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--dim); }
+
+  /* 扁平面板（无 glass / 无 glow / 无 blur，仅发丝边）—— 仅用于真正需要分组处 */
+  .panel{ background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.8rem; }
+  .panel.s{ border-top:2px solid var(--accent); }
+  .panel.c{ border-top:2px solid var(--amber); }
+  .panel.d{ border-top:2px solid var(--violet); }
+  .panel.hl{ border-color:var(--border2); }
+
+  /* 流程序列：箭头中性 dim，不涂 accent */
+  .flow{ font-family:'Geist Mono',monospace; line-height:2; }
+  .arr{ color:var(--dim2); margin:0 .35rem; }
+
+  /* 大数字 */
+  .bignum{ font-size:clamp(2.6rem,6vw,4.2rem); font-weight:800; letter-spacing:-.03em; line-height:1; }
+
+  /* 单一视觉载体：图片均分填满框宽 */
+  .seq{ display:flex; align-items:center; gap:1rem; }
+  .seq figure{ flex:1 1 0; margin:0; text-align:center; min-width:0; }
+  .seq img{ width:100%; height:auto; max-height:56vh; display:block; border:1px solid var(--border); border-radius:10px; background:#fff; }
+  .seq figcaption{ margin-top:.6rem; font-size:.8rem; color:var(--dim); }
+  .arrow{ flex:0 0 auto; color:var(--dim2); font-size:1.05rem; }
+
+  /* 表格：发丝线，无背景填色 */
+  table{ width:100%; border-collapse:collapse; }
+  th,td{ text-align:left; padding:.85rem .6rem; border-bottom:1px solid var(--border); font-size:.85rem; }
+  th{ color:var(--dim); font-weight:500; font-size:.72rem; letter-spacing:.06em; }
+
+  /* 语义小标（S/C/D + before/after），携带语义才用 */
+  .tagS{ color:var(--accent); } .tagC{ color:var(--amber); } .tagD{ color:var(--violet); }
+  .red{ color:var(--red); } .green{ color:var(--green); }
+
+  /* gate tabs */
+  .gate-btn{ font-size:.78rem; padding:.4rem .8rem; border:1px solid var(--border); border-radius:999px; color:var(--dim); background:transparent; cursor:pointer; font-family:'Geist Mono',monospace; }
+  .gate-btn.active{ color:var(--accent); border-color:var(--accent); }
+  .gate-panel{ display:none; }
+
+  /* 唯一有动机的动效：进入视口 fade-up，尊重 reduced-motion */
+  [data-r]{ opacity:0; transform:translateY(16px); transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1); }
+  [data-r].in{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion:reduce){ [data-r]{ opacity:1; transform:none; transition:none; } }
+
+  @media (max-width:768px){
+    .seq{ flex-wrap:wrap; } .seq figure{ flex:1 1 42%; }
+    .row{ grid-template-columns:1fr; gap:.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== S1 · HERO ========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="rule"></div>
+    <div class="kicker mono">AI Native · Engineering Practice · 2026.07</div>
+    <h1 class="font-black tracking-tighter leading-[1.02] mb-7" style="font-size:clamp(2.6rem,7vw,5rem);">
+      <span style="color:#fff;">UI 开发的</span><br>
+      <span style="color:var(--accent);">Harness Engineering</span><br>
+      <span style="color:#fff;">实践</span>
+    </h1>
+    <p class="text-lg md:text-xl leading-relaxed measure" style="color:var(--dim);">
+      不是「Agent 写 UI」，<br>而是「Agent 写 UI 后如何闭环验收」。
+    </p>
+    <div class="mt-10 text-sm" style="color:var(--dim2);">主讲：杨斌　·　2026.07</div>
+  </div>
+</section>
+
+<!-- ========== S2 · 痛点（calm · 发丝线列表）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-5" style="color:#fff;">谁的痛点？</h2>
+    <p class="text-lg mb-14 measure" style="color:var(--dim);">Agent 能写 UI，但写完不知道自己对不对。验收标准还留在人的脑子里。</p>
+    <div class="measure">
+      <div class="row"><div class="lbl mono">前端</div><div class="text-xl">Agent 写完 UI，验收标准在脑子里，肉眼 diff 到眼瞎。</div></div>
+      <div class="row"><div class="lbl mono">联调</div><div class="text-xl">接入真实接口后页面改了不知道，顾不上查验。</div></div>
+      <div class="row"><div class="lbl mono">设计</div><div class="text-xl">初级问题很多，优化类往往被延期处理。</div></div>
+    </div>
+    <p class="mt-14 text-2xl font-medium leading-snug" style="max-width:28ch;">验收标准在脑子里，<br>Agent <span style="color:var(--accent);">没有自查能力</span>。</p>
+  </div>
+</section>
+
+<!-- ========== S3 · 过去 → 现在（两段 flow 对比）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-14" style="color:#fff;">过去 <span style="color:var(--dim2);">→</span> 现在</h2>
+    <div class="mb-10">
+      <div class="lbl mono mb-3" style="color:var(--dim2);">过去</div>
+      <p class="flow measure" style="color:var(--dim);">人定标准 <span class="arr">→</span> Cursor 执行 <span class="arr">→</span> 人眼验收 <span class="arr">→</span> 发现问题 <span class="arr">→</span> 再改 <span class="arr">→</span> 再验收 <span class="arr">→</span> 提交</p>
+      <p class="flow text-sm mt-3" style="color:var(--red);">接口 ready 后 → 联调 → 根据真实数据再改（第二轮返工）</p>
+    </div>
+    <div>
+      <div class="lbl mono mb-3" style="color:var(--accent);">现在 · Harness 化</div>
+      <p class="flow measure" style="color:var(--text);">人提意图 <span class="arr">→</span> Agent 生成 Spec（多方确认）<span class="arr">→</span> Agent 执行 <span class="arr">→</span> Playwright 主客观验收 <span class="arr">→</span> 达到阀门（≥85%）<span class="arr">→</span> 工程师确认 <span class="arr">→</span> 设计师确认 <span class="arr">→</span> Agent 提交 + 落盘 WorkItem</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== S4 · Phase 1 行业同质化（大数字 + 陈述）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="kicker mono">Phase 1 · 行业同质化</div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-4" style="color:#fff;">大家都在做的事</h2>
+    <p class="text-lg mb-12 measure" style="color:var(--dim);">接口还没 ready 时，先用 Figma mock 数据驱动开发 UI。</p>
+    <p class="mono text-base mb-2" style="color:var(--accent);">Figma API / MCP → Agent 获取设计稿 → 生成代码</p>
+    <p class="text-base mb-14 measure" style="color:var(--dim);">大同小异。问题是：Agent 写完代码 = 工作结束？它不知道自己对不对。</p>
+
+    <div class="grid grid-cols-2 gap-10 mb-12 measure">
+      <div><div class="bignum" style="color:var(--dim);">5 × 8</div><div class="text-sm mt-2" style="color:var(--dim);">人的上班时间</div></div>
+      <div><div class="bignum" style="color:var(--accent);">7 × 24</div><div class="text-sm mt-2" style="color:var(--accent);">Agent 持续运行</div></div>
+    </div>
+    <p class="text-base mb-8 measure" style="color:var(--dim);">基础、重复、繁琐、需反复执行 + 验收的活，交给 Agent（多 agent / subagent 并行）；人腾出来的时间做更高价值的事：</p>
+    <div class="measure">
+      <div class="row"><div class="lbl mono">研究</div><div>pixelmatch / Playwright / Appium</div></div>
+      <div class="row"><div class="lbl mono">体系</div><div>组件 · 设计 · 交互标准化</div></div>
+      <div class="row"><div class="lbl mono">差异化</div><div>设计素养 · 品味 · 高级感 · AI Native 新 skill</div></div>
+    </div>
+    <p class="mt-12 text-xl font-semibold" style="max-width:32ch;">关键缺口：Agent 缺少<span style="color:var(--accent);">自查、自修、自校准</span>能力。</p>
+  </div>
+</section>
+
+<!-- ========== S5 · 四件套（4 扁平面板）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="kicker mono">Phase 1 · 差异化</div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">叠加 Harness <span style="color:var(--accent);">四件套</span></h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      <div class="panel"><div class="mono text-xs mb-3" style="color:var(--dim);">01</div><div class="font-bold mb-2">Figma MCP</div><div class="text-sm" style="color:var(--dim);">结构 + token 真源</div></div>
+      <div class="panel"><div class="mono text-xs mb-3" style="color:var(--dim);">02</div><div class="font-bold mb-2">Playwright</div><div class="text-sm" style="color:var(--dim);">BDD 验收、截图录屏<br>拦截真实接口、注入用户信息</div></div>
+      <div class="panel"><div class="mono text-xs mb-3" style="color:var(--dim);">03</div><div class="font-bold mb-2">Pixelmatch</div><div class="text-sm" style="color:var(--dim);">像素级对比</div></div>
+      <div class="panel hl" style="border-color:var(--accent);"><div class="mono text-xs mb-3" style="color:var(--accent);">04</div><div class="font-bold mb-2">Kimi WebBridge</div><div class="text-sm" style="color:var(--accent);">真实登录态，复现用户使用过程<br>抓测试阶段 UI 缺陷</div></div>
+    </div>
+    <p class="text-xl font-semibold" style="color:var(--accent);">= Agent 具备自查、自修、自校准能力</p>
+  </div>
+</section>
+
+<!-- ========== S5b · Pixelmatch（单一视觉载体）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <p class="mono text-sm mb-3" style="color:var(--dim);">Pixelmatch</p>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-14" style="color:#fff; max-width:18ch;">把「像不像」变成数字。</h2>
+    <div class="seq">
+      <figure><img src="pm-before.png" alt="渲染前"><figcaption>渲染前</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure><img src="pm-diff-before.png" alt="diff"><figcaption><b class="red">diff 44.9%</b></figcaption></figure>
+      <span class="arrow">→</span>
+      <figure><img src="pm-after.png" alt="修复后"><figcaption>修复后</figcaption></figure>
+      <span class="arrow">→</span>
+      <figure><img src="pm-diff-after.png" alt="diff"><figcaption><b class="green">diff 6.0%</b></figcaption></figure>
+    </div>
+    <p class="mono text-sm mt-14 measure" style="color:var(--dim);">expected = Figma 设计图 · actual = Playwright 截图 · 同尺寸逐像素比对。透明 PNG 在深色底被遮罩，量化 <b class="red">44.9%</b>；加 <span style="color:#fff;">background:#fff</span> 修复，残余 <b class="green">6.0%</b> 仅缩放抗锯齿。</p>
+  </div>
+</section>
+
+<!-- ========== S6 · 假 PASS（3 案例 · 发丝线）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="kicker mono">Real Case · 假 PASS</div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-4" style="color:#fff;">Agent 说<span style="color:var(--red);">「验收通过」</span></h2>
+    <p class="text-lg mb-12" style="color:var(--dim);">但人眼一看——</p>
+    <div class="measure">
+      <div class="row"><div class="lbl mono red">E1 背层条颜色</div><div><span class="mono"><span style="text-decoration:line-through;color:var(--red);">#2e2e2e</span> <span class="arr">→</span> <span class="green">#609995</span></span><div class="text-sm mt-1" style="color:var(--dim);">只信 MCP CSS 公式，未对 PNG 像素采样。</div></div></div>
+      <div class="row"><div class="lbl mono red">E2 CTA Icon</div><div><span class="mono"><span style="text-decoration:line-through;color:var(--red);">自绘箭头 SVG</span> <span class="arr">→</span> <span class="green">right-arrow-alt</span></span><div class="text-sm mt-1" style="color:var(--dim);">未走 Icon 四层验收，自造 SVG。</div></div></div>
+      <div class="row"><div class="lbl mono red">E5 整帧稀释</div><div><span class="mono">整帧 diff <span class="green">~4%</span>「通过」，<span class="red">但背层条仍错</span></span><div class="text-sm mt-1" style="color:var(--dim);">小区域错误被大量正确像素平均掉。</div></div></div>
+    </div>
+    <div class="panel mt-12 measure" style="border-left:2px solid var(--accent);">
+      <p class="font-semibold mb-1">根因 & 教训</p>
+      <p class="text-sm" style="color:var(--dim);">整帧 pixelmatch → 子区域错误被稀释 · 断言覆盖不全 · 未强制 side-by-side 人眼扫一眼。</p>
+      <p class="mono text-xs mt-2" style="color:var(--dim2);">来源：anti-patterns-pixel-harness-false-pass-20260617.md · E1–E6</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== S7 · SPEC 结构（定义列表 · 2 列发丝）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-4" style="color:#fff;">SPEC 不是需求文档，<br>是 Agent 的<span style="color:var(--accent);">执行契约</span>。</h2>
+    <p class="text-base mb-12 measure" style="color:var(--dim);">一个 SPEC 从 Figma 节点 ID 写到 testid、Gherkin、DoD。Agent 不是靠「理解」写代码，是靠 SPEC 的精确约束。</p>
+    <div class="grid md:grid-cols-2 gap-x-10 measure">
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§1 目标与价值</div><div class="text-sm">为什么做 · 产品目标 · Demo 目标</div></div>
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§2 Figma 主稿</div><div class="text-sm">节点 ID + PNG 导出 · 唯一设计真源</div></div>
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§3 视觉规格</div><div class="text-sm">布局 · Typography token 映射 · 颜色状态机 · 5 种 cell 态</div></div>
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§4 行为规格</div><div class="text-sm">Gherkin BDD · 6 个 Scenario · Given/When/Then</div></div>
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§5 数据与状态</div><div class="text-sm">TypeScript 类型 · Mock 数据集 A/B/C · Fixture</div></div>
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§6 组件与文件</div><div class="text-sm">文件树 · testid 约定 · data-* 属性</div></div>
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§7–8 Phase + DoD</div><div class="text-sm">本期/下期切分 · 人工 + 自动化验收清单</div></div>
+      <div class="row"><div class="lbl mono" style="color:var(--accent);">§9–11 PRD 追溯</div><div class="text-sm">需求追溯表 · 待确认结论 · 可审计历史</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== S8 · 门禁遗漏（交互 gate tabs）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="kicker mono">Real Case · 门禁遗漏</div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-8" style="color:#fff;">验收通过了，<span style="color:var(--red);">但间距错了</span>。</h2>
+    <div class="panel mb-10 measure" style="border-left:2px solid var(--red);">
+      <div class="lbl mono mb-2 red">Trackers Setup · 真实踩坑</div>
+      <div class="mono text-sm" style="color:var(--dim);">
+        SPEC 写了 88100:38122 要求 gap <span class="green">8px</span>；实现误用 <span style="text-decoration:line-through;color:var(--red);">24px</span>。<br>
+        Harness 验了文案 + chips + icon，<span class="red">没量 gap 几何</span> → 报告仍显示 pass。
+      </div>
+    </div>
+    <p class="text-sm mb-5 font-semibold">根因：验收门禁不完整，gap 几何缺失。踩坑后重建门禁顺序——先量间距，再跑 pixel。</p>
+    <div class="flex flex-wrap gap-2 mb-6" id="gate-tabs">
+      <button class="gate-btn active" data-gate="gap" onclick="switchGate('gap')">1. gap 几何</button>
+      <button class="gate-btn" data-gate="token" onclick="switchGate('token')">2. token</button>
+      <button class="gate-btn" data-gate="copy" onclick="switchGate('copy')">3. copy</button>
+      <button class="gate-btn" data-gate="icon" onclick="switchGate('icon')">4. icon</button>
+      <button class="gate-btn" data-gate="pixel" onclick="switchGate('pixel')">5. pixel</button>
+    </div>
+    <div class="panel">
+      <div class="gate-panel" data-panel="gap"><div class="grid md:grid-cols-3 gap-6 text-sm"><div><div class="mono text-xs mb-1 tagS">GAP_TABLE.md</div><span style="color:var(--dim);">SPEC 写入每个子 frame 的 Figma gap 值，不可跳过</span></div><div><div class="mono text-xs mb-1 tagS">figma-*-gaps.mjs</div><span style="color:var(--dim);">GAP_CONTRACT 可执行契约，机器可读</span></div><div><div class="mono text-xs mb-1 tagS">gapEval</div><span style="color:var(--dim);">Playwright getBoundingClientRect 逐行量距对比</span></div></div></div>
+      <div class="gate-panel" data-panel="token"><div class="grid md:grid-cols-3 gap-6 text-sm"><div><div class="mono text-xs mb-1 tagS">get_variable_defs</div><span style="color:var(--dim);">每层获取 Figma variable，禁止抄 MCP CSS #fallback</span></div><div><div class="mono text-xs mb-1 tagS">themes.json</div><span style="color:var(--dim);">semantic class 映射，字面 token 非语义猜测</span></div><div><div class="mono text-xs mb-1 tagS">Token Audit</div><span style="color:var(--dim);">computed style 对比 typography + color + padding</span></div></div></div>
+      <div class="gate-panel" data-panel="copy"><div class="grid md:grid-cols-3 gap-6 text-sm"><div><div class="mono text-xs mb-1 tagS">copy.contract.json</div><span style="color:var(--dim);">CTA 文案、标题、字段与 PRD 精确一致</span></div><div><div class="mono text-xs mb-1 tagS">runCopyAudit</div><span style="color:var(--dim);">layer:"C" 过滤，D 层文案不参与 copyPass</span></div><div><div class="mono text-xs mb-1 tagS">exact match</div><span style="color:var(--dim);">文案是产品契约，禁止同义词替换</span></div></div></div>
+      <div class="gate-panel" data-panel="icon"><div class="grid md:grid-cols-4 gap-4 text-sm"><div><div class="mono text-xs mb-1 tagS">1. 存在</div><span style="color:var(--dim);">data-testid 非空</span></div><div><div class="mono text-xs mb-1 tagS">2. 来源</div><span style="color:var(--dim);">DS Icon 组件，禁止自绘 SVG</span></div><div><div class="mono text-xs mb-1 tagS">3. 色值</div><span style="color:var(--dim);">与 figma-spec 一致</span></div><div><div class="mono text-xs mb-1 tagS">4. 像素</div><span style="color:var(--dim);">可选 crop diff</span></div></div></div>
+      <div class="gate-panel" data-panel="pixel"><div class="grid md:grid-cols-3 gap-6 text-sm"><div><div class="mono text-xs mb-1 tagS">分区 pixel</div><span style="color:var(--dim);">多 region 裁剪对比，禁止仅整帧</span></div><div><div class="mono text-xs mb-1 tagS">maskSelectors</div><span style="color:var(--dim);">D 层字段 mask 后比壳，防稀释</span></div><div><div class="mono text-xs mb-1 tagS">side-by-side</div><span style="color:var(--dim);">人工扫一眼 Figma vs 实现，禁止纯数字 pass</span></div></div></div>
+    </div>
+    <p class="mono text-xs mt-5" style="color:var(--dim2);">来源：gap-geometry-mandatory-gate.md · Trackers Setup 20260602</p>
+  </div>
+</section>
+
+<!-- ========== S9 · S/C/D 分层验收（语义面板）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="kicker mono">Phase 2 · S/C/D</div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-4" style="color:#fff;">分层验收</h2>
+    <p class="text-lg mb-12 measure" style="color:var(--dim);">第二阶段接口联调：页面数据从 Figma mock 切换为真实接口驱动。</p>
+    <div class="grid md:grid-cols-3 gap-5 mb-10">
+      <div class="panel s"><div class="bignum mb-3 tagS">S</div><div class="font-bold mb-2">Structure</div><div class="text-sm" style="color:var(--dim);">结构 · 布局 · 样式<br>组件层级 · pixelmatch<br>mask 后比壳</div></div>
+      <div class="panel c"><div class="bignum mb-3 tagC">C</div><div class="font-bold mb-2">Contract</div><div class="text-sm" style="color:var(--dim);">文案：静态/动态区分<br>组件契约 · icon 来源<br>layer:"C" 精准定位</div></div>
+      <div class="panel d"><div class="bignum mb-3 tagD">D</div><div class="font-bold mb-2">Dynamic</div><div class="text-sm" style="color:var(--dim);">动态数据 · schema 严格约束<br>空态/异常态 mask<br><span class="tagS">不参与 UI 还原 pass</span></div></div>
+    </div>
+    <p class="mono text-sm" style="color:var(--dim);">验收公式：<span class="tagS">UI还原.pass = S.pass ∧ C.pass</span> · <span class="tagD">page.pass = S.pass ∧ C.pass ∧ D.pass</span></p>
+  </div>
+</section>
+
+<!-- ========== S10 · ASSERTION MATRIX（表格）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">ASSERTION_MATRIX，<br><span style="color:var(--accent);">每个像素都有归属</span>。</h2>
+    <div class="overflow-x-auto mb-8">
+      <table>
+        <thead><tr><th>区域 / testid</th><th class="tagS">S（pixel section）</th><th class="tagC">C（copy.contract）</th><th class="tagD">D（mask + schema）</th></tr></thead>
+        <tbody style="color:var(--dim);">
+          <tr><td style="color:#fff;">吸顶周条</td><td>sticky-week</td><td>—</td><td>week-range · date-cell</td></tr>
+          <tr><td style="color:#fff;">C 类待办卡</td><td>event-card-c</td><td class="tagC">cta-ive-completed</td><td>event-title · subtitle</td></tr>
+          <tr><td style="color:#fff;">竖线轴 + 日标签</td><td>timeline-rail</td><td>—</td><td>day-section-heading-*</td></tr>
+          <tr><td style="color:#fff;">Review 类卡</td><td>event-card-review</td><td class="tagC">cta-review</td><td>event-title · subtitle</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel measure" style="border-left:2px solid var(--violet);">
+      <p class="font-semibold mb-1">D 层隔离原则</p>
+      <p class="text-sm" style="color:var(--dim);">动态字段（日期范围、事件标题）通过 <span class="mono tagS">maskSelectors</span> 排除。<span class="red">D schema fail ≠ UI 还原 fail</span>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== S11 · 双 Runner（2 列对比）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">双 Runner 分工</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="panel"><div class="lbl mono mb-3 tagS">Runner 1</div><div class="text-2xl font-black mb-4">Playwright headless</div>
+        <div class="text-sm space-y-2" style="color:var(--dim);"><div><span class="green">✓</span> MR 门禁</div><div><span class="green">✓</span> CI 自动化</div><div><span class="green">✓</span> Token 精确断言</div><div><span class="green">✓</span> pixelmatch 像素对比</div><div><span class="green">✓</span> gap 几何量距</div></div>
+      </div>
+      <div class="panel hl" style="border-color:var(--accent);"><div class="lbl mono mb-3 tagS">Runner 2</div><div class="text-2xl font-black mb-4">Kimi WebBridge</div>
+        <div class="text-sm space-y-2" style="color:var(--dim);"><div><span class="green">✓</span> 真 Chrome</div><div><span class="green">✓</span> 真实登录态</div><div><span class="green">✓</span> H5 Drawer 抽检</div><div><span class="green">✓</span> 主观审美判断</div><div><span class="green">✓</span> 补 headless 盲区</div></div>
+      </div>
+    </div>
+    <p class="mono text-sm" style="color:var(--accent);">共用：scenarios.mjs + figma-*-tokens.mjs（期望值单源）</p>
+  </div>
+</section>
+
+<!-- ========== S12 · 双轨验收（语义 2 列）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="kicker mono">Dual Track</div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">双轨验收</h2>
+    <div class="grid md:grid-cols-2 gap-6 mb-8">
+      <div class="panel s"><div class="lbl mono mb-4 tagS">轨道 A · UI 还原</div>
+        <div class="text-sm space-y-3" style="color:var(--dim);">
+          <div><span class="mono" style="color:#fff;">S 层</span> · pixelmatch mask 后比壳<br><span class="mono text-xs tagS">PA-VISUAL-01~04 · 88–90% threshold</span></div>
+          <div><span class="mono" style="color:#fff;">C 层</span> · runCopyAudit layer:"C"<br><span class="mono text-xs tagC">I've completed · Review · Today</span></div>
+          <div><span class="mono" style="color:#fff;">D 层</span> · 独立 api-contract<br><span class="mono text-xs" style="color:var(--dim);">D schema fail ≠ UI 还原 fail</span></div>
+        </div>
+      </div>
+      <div class="panel" style="border-top:2px solid var(--green);"><div class="lbl mono mb-4 green">轨道 B · 交互实现</div>
+        <div class="text-sm space-y-2 mono" style="color:var(--dim);">
+          <div><span class="green">PA-ST-01</span> 周条吸顶 · P0</div>
+          <div><span class="green">PA-ST-04</span> 吸顶可交互 · P0</div>
+          <div><span class="green">PA-ST-05</span> 滚动激活周列 · P0</div>
+          <div><span class="green">PA-ST-06</span> 点周条滚列表 · P0</div>
+          <div class="text-xs mt-2" style="color:var(--dim);">部分基础交互可做，复杂的仍在探索。</div>
+        </div>
+      </div>
+    </div>
+    <p class="mono text-sm" style="color:var(--dim);">结案条件：<span class="tagS">轨道 A（S+C）∧ 轨道 B（BDD）同时 PASS</span></p>
+  </div>
+</section>
+
+<!-- ========== S13 · 融合设计与开发（大数字比 + 三层）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <div class="kicker mono">Line 2 · Vision</div>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">融合设计与开发</h2>
+    <div class="grid grid-cols-3 gap-8 mb-10 measure">
+      <div><div class="bignum">10%</div><div class="text-sm mt-2" style="color:var(--dim);">人拍板</div></div>
+      <div><div class="bignum" style="color:var(--accent);">80%</div><div class="text-sm mt-2 tagS">Agent 执行 + 自主验收</div></div>
+      <div><div class="bignum">10%</div><div class="text-sm mt-2" style="color:var(--dim);">人关键审核</div></div>
+    </div>
+    <div class="measure mb-10">
+      <div class="row"><div class="lbl mono">一层验收</div><div>Agent 自主 S/C/D 阀门</div></div>
+      <div class="row"><div class="lbl mono">二层验收</div><div>工程师 · 代码 + 审美</div></div>
+      <div class="row"><div class="lbl mono">三层验收</div><div>设计师 · 即时对照 Figma</div></div>
+    </div>
+    <div class="panel measure" style="border-left:2px solid var(--accent);">
+      <p class="font-semibold mb-2">PDE 方向 · 后续与产品、设计同事共同探索</p>
+      <p class="text-sm" style="color:var(--dim);">Product Design Engineer——越少的人越关注整体交付。产品、设计、工程都不再只关注单点。后续希望和设计沟通：在 Figma 基础上增强交互信息，以 Agent 更友好的方式（HTML/MD 形式的交互规范），加快整体交付链路。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== S13b · Figma → Agent 交互规范（流程 + 图）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">从 Figma 到 <span style="color:var(--accent);">Agent 可消费</span>的交互规范</h2>
+    <div class="grid md:grid-cols-2 gap-8 mb-8">
+      <div>
+        <div class="lbl mono mb-5 tagS">交付链路 · 四步</div>
+        <div class="space-y-4 text-base">
+          <div><div class="mono">① Figma 视觉稿</div><div class="text-sm" style="color:var(--dim);">静态像素 · Agent 读不出语义</div></div>
+          <div class="arr">↓</div>
+          <div><div class="mono">② 增强交互信息</div><div class="text-sm" style="color:var(--dim);">状态 / 阈值 / 边界 / 空·错·加载 / 数据契约</div></div>
+          <div class="arr">↓</div>
+          <div><div class="mono tagS">③ HTML·MD 交互规范</div><div class="text-sm" style="color:var(--dim);">Agent 可直接消费的 context</div></div>
+          <div class="arr">↓</div>
+          <div><div class="mono">④ 加快交付链路</div><div class="text-sm" style="color:var(--dim);">设计验收前置到 Spec 阶段</div></div>
+        </div>
+        <p class="text-sm mt-6 pt-4" style="border-top:1px solid var(--border);color:var(--dim);">Figma 只给像素 → Agent 需要的是<span class="tagS">交互语义</span>。</p>
+      </div>
+      <div>
+        <div class="lbl mono mb-4" style="color:var(--dim);">行业声音 · 设计师视角</div>
+        <img src="figma-ai-agent-crop.jpg" alt="Figma ai agent 一週使用心得" style="width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;">
+        <div class="text-xs mt-3 mb-5" style="color:var(--dim2);">来源：feifan.design · 06/12 · 串文《Figma ai agent 一週使用心得》</div>
+        <p class="text-base font-semibold" style="border-left:2px solid var(--accent);padding-left:12px;color:var(--accent);">design system 作为 context，不可或缺。</p>
+      </div>
+    </div>
+    <p class="text-sm" style="color:var(--dim);">设计师写文档 / 交互规范 → 接手部分 PM + 前端职责。</p>
+  </div>
+</section>
+
+<!-- ========== S13c · 三层 Graph（语义面板）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-10" style="color:#fff;">Figma 缺的不是功能，<br>是 <span style="color:var(--accent);">Agent 能读</span>的上下文。</h2>
+    <div class="grid md:grid-cols-3 gap-5 mb-6">
+      <div class="panel" style="border-top:2px solid var(--green);"><div class="lbl mono mb-3 green">✓ Visual Graph · 看见设计</div><div class="font-semibold mb-2">页面 / 组件 / token / 视觉层级</div><div class="text-sm mb-4" style="color:var(--dim);">Agent：能还原像素</div><div class="mono text-xs" style="color:var(--dim2);">figma-baseline.png</div></div>
+      <div class="panel s"><div class="lbl mono mb-3 tagS">⚠ Interaction Graph · 理解行为</div><div class="font-semibold mb-2">状态 / 事件 / 转场 / 手势 / 验收</div><div class="text-sm mb-4" style="color:var(--dim);">Agent：看图猜交互 → 读行为契约</div><div class="mono text-xs" style="color:var(--dim2);">Calendar.interaction.yaml</div></div>
+      <div class="panel" style="border-top:2px solid var(--red);"><div class="lbl mono mb-3 red">✗ Spec Graph · 执行·沉淀</div><div class="font-semibold mb-2">规则 / 边界 / 验收 / 失败案例</div><div class="text-sm mb-4" style="color:var(--dim);">Agent：可读契约 + 失败记忆</div><div class="mono text-xs" style="color:var(--dim2);">design-context.md + failures/*.md</div></div>
+    </div>
+    <div class="panel measure mb-6" style="border-left:2px solid var(--accent);">
+      <p class="flow tagS">失败不只修掉 <span class="arr">→</span> 沉淀成下次约束 <span class="arr">→</span> 回写 Spec Graph <span class="arr">→</span> 下次生成更准</p>
+      <p class="text-xs mt-2" style="color:var(--dim);">Figma 不必内建全链路，做 AI Native 链路的上游上下文中心（→ MCP → Agent → Playwright → CI → 沉淀）。</p>
+    </div>
+    <p class="text-lg font-semibold">从「看见设计」<span class="arr">→</span>「理解·执行·验证·沉淀设计」<span class="tagS">= AI Native UI 交付的源头入口</span></p>
+  </div>
+</section>
+
+<!-- ========== S13d · 真实案例 日历控件（图 + 标注 · 单一载体）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-10" style="color:#fff;">一个 frame，<span style="color:var(--accent);">两类交互组件</span>，Agent 读不出。</h2>
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <div><img src="figma-calendar-frame.png" alt="真实 Figma frame：可滑失卡片 + 日历控件" style="max-height:64vh;width:auto;display:block;margin:0 auto;border:1px solid var(--border);border-radius:12px;background:#fff;"></div>
+      <div class="space-y-4">
+        <div class="panel" style="border-left:2px solid var(--green);"><div class="lbl mono mb-1 green">✓ Visual 能给</div><div class="text-sm" style="color:var(--dim);">顶部卡片 + 日历网格 + 事件列表 + 配色 token——像素层。</div></div>
+        <div class="panel" style="border-left:2px solid var(--accent);"><div class="lbl mono mb-1 tagS">⚠ Interaction 读不出</div><div class="text-sm" style="color:var(--dim);">卡片滑动消失 · 日历滚动切月 · 吸顶周条 · 日期选中/今天/范围/禁用态 · 手势 · 键盘。</div></div>
+        <div class="panel" style="border-left:2px solid var(--red);"><div class="lbl mono mb-1 red">✗ Spec 读不出</div><div class="text-sm" style="color:var(--dim);">卡片滑失后能否恢复 · 禁用日期不可选 · 跨月选择不丢失 · 滚动后月份正确 · 范围连续。</div></div>
+        <p class="text-xs" style="color:var(--dim2);">frame 393×944 · 187 节点 · 一个 frame 含「可滑失卡片 + 日历控件」两类组件 · 静态图能看见像素，<span class="tagS">读不出行为与约束</span>。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== LOOP · 闭环工程（两段 flow 对比）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-4" style="color:#fff;">收紧反馈回路，<span style="color:var(--accent);">前移到源头</span>。</h2>
+    <p class="text-lg mb-12 measure" style="color:var(--dim);">问题在哪里产生，反馈就尽量在哪里出现——别等它流到用户那里。</p>
+    <div class="mb-8">
+      <div class="lbl mono mb-3 red">过去 · 开环</div>
+      <p class="flow measure" style="color:var(--dim);">提测 <span class="arr">→</span> UI 同事反馈验收清单 <span class="arr">→</span> 开发再改</p>
+      <p class="text-sm mt-2 red">验收压到提测后，问题靠人逐条反馈。</p>
+    </div>
+    <div class="mb-10">
+      <div class="lbl mono mb-3 green">现在 · 闭环</div>
+      <p class="flow measure" style="color:var(--text);">代码生成 <span class="arr">→</span> Agent 还原度验收（60–80%）<span class="arr">→</span> 工程师 + 设计师补验 <span class="arr">→</span> 根因分析 <span class="arr">→</span> 沉淀负面案例 <span class="arr">→</span> 反哺 Agent 进化</p>
+    </div>
+    <p class="text-base measure" style="color:var(--dim);">Playwright 验收 = 把来自 <span style="color:#fff;">UI 验收</span> 的反馈，拉回到 <span class="tagS">开发者终端</span>。不是多跑一个测试，而是把<span class="tagS">错误发现的位置前移</span>。</p>
+  </div>
+</section>
+
+<!-- ========== S14 · 负面案例沉淀（发丝线网格）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-4" style="color:#fff;">负面案例<span style="color:var(--red);">沉淀</span></h2>
+    <p class="text-lg mb-12 measure" style="color:var(--dim);">Harness 不是证明 Agent 永远正确，而是让 Agent 在<span style="color:#fff;">可控边界内</span>工作。</p>
+    <div class="grid md:grid-cols-2 gap-x-10 measure">
+      <div class="row"><div class="lbl mono red">假 PASS</div><div class="text-sm">整帧 diff 合格但子区域颜色全错。</div></div>
+      <div class="row"><div class="lbl mono red">MCP fallback</div><div class="text-sm">CSS #fallback 被当成真值。</div></div>
+      <div class="row"><div class="lbl mono red">自造 SVG</div><div class="text-sm">不走 DS Icon 四层验收。</div></div>
+      <div class="row"><div class="lbl mono red">H5 vs WebView</div><div class="text-sm">还不能完美对比 · 探索 Appium。</div></div>
+    </div>
+    <div class="panel mt-12 measure" style="border-left:2px solid var(--accent);">
+      <p class="text-sm"><span class="font-semibold">沉淀方式：</span><span style="color:var(--dim);">每次失败 → anti-patterns 文档 → 门禁规则 → 自动化检查。已有 2 篇沉淀 + 6 项 P0 门禁。</span></p>
+    </div>
+  </div>
+</section>
+
+<!-- ========== S15 · 修复前后（表格）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">修复前后</h2>
+    <div class="overflow-x-auto mb-6">
+      <table>
+        <thead><tr><th>指标</th><th class="red">修复前</th><th class="green">修复后</th></tr></thead>
+        <tbody style="color:var(--dim);">
+          <tr><td style="color:#fff;">整帧 diff</td><td class="mono red">66–76%</td><td class="mono green">~4%</td></tr>
+          <tr><td style="color:#fff;">顶卡 diff</td><td class="mono red">93%</td><td class="mono green">~1.5%</td></tr>
+          <tr><td style="color:#fff;">背层条 diff（新分区）</td><td class="red">被稀释未单列</td><td class="mono green">~7.5%</td></tr>
+          <tr><td style="color:#fff;">strip DOM 色</td><td class="mono red">#24909e</td><td class="mono green">#609995 / #548a8b</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mono text-xs" style="color:var(--dim2);">来源：anti-patterns-pixel-harness-false-pass-20260617.md §4 · Plan Activity Banner Phase 1</p>
+  </div>
+</section>
+
+<!-- ========== S16 · 移动端探索（2 列）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-12" style="color:#fff;">移动端探索</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="panel"><div class="lbl mono mb-4 red">当前挑战</div>
+        <div class="text-sm space-y-3" style="color:var(--dim);"><div>H5 还不能完美对比 WebView</div><div>App 端还原验收还在探索</div><div>双端 Viewport 差异无法自动对齐</div></div>
+      </div>
+      <div class="panel hl" style="border-color:var(--accent);"><div class="lbl mono mb-4 tagS">尝试方向</div>
+        <div class="text-sm space-y-3" style="color:var(--dim);"><div><span style="color:#fff;">Appium</span> 测试框架</div><div>App 端自主 UI 验收闭环</div><div>WebView bridge 截图对比</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== S16b · agent 闭环（loop 链 + 2 列）========== -->
+<section class="slide">
+  <div class="frame" data-r>
+    <h2 class="text-4xl md:text-5xl font-black tracking-tight leading-[1.05] mb-10" style="color:#fff;">Web 生产，一条 agent 闭环</h2>
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-3 mb-12 text-base font-medium">
+      <span class="mono px-3 py-1.5 rounded-lg" style="border:1px solid var(--border);color:#fff;">spec</span><span class="arr">→</span>
+      <span class="mono px-3 py-1.5 rounded-lg" style="border:1px solid var(--border);color:#fff;">生产</span><span class="arr">→</span>
+      <span class="mono px-3 py-1.5 rounded-lg" style="border:1px solid var(--accent);color:var(--accent);">验收</span><span class="arr">→</span>
+      <span class="mono px-3 py-1.5 rounded-lg" style="border:1px solid var(--border);color:#fff;">修改</span><span class="arr">→</span>
+      <span class="mono px-3 py-1.5 rounded-lg" style="border:1px solid var(--border);color:#fff;">交付</span><span class="arr">→</span>
+      <span class="mono px-3 py-1.5 rounded-lg" style="border:1px solid var(--border);color:#fff;">沉淀</span>
+      <span style="color:var(--dim2);">↺</span>
+    </div>
+    <div class="grid md:grid-cols-2 gap-6 mb-10">
+      <div class="panel"><div class="lbl mono mb-2 red">确定性核心 · 零模型</div><div class="text-sm" style="color:var(--dim);"><span style="color:#fff;">Playwright</span> 真渲染 · <span style="color:#fff;">Pillow</span> 备图 · <span style="color:#fff;">pixelmatch</span> diff。</div></div>
+      <div class="panel hl" style="border-color:var(--accent);"><div class="lbl mono mb-2 tagS">vision 判读 · 可插拔</div><div class="text-sm" style="color:var(--dim);">多模态「看图」，模型无关、机制可复现。</div></div>
+    </div>
+    <p class="text-xl md:text-2xl font-black">loop 工程 + harness 工程托底，<span class="tagS">人只做核心、有价值的事</span>。</p>
+  </div>
+</section>
+
+<!-- ========== S17 · 一句话总结（全幅陈述）========== -->
+<section class="slide">
+  <div class="frame text-center" data-r>
+    <div class="rule" style="margin:0 auto 2rem;"></div>
+    <h2 class="text-4xl md:text-6xl font-black tracking-tighter leading-[1.05] mb-10" style="color:#fff;">一句话总结</h2>
+    <div class="panel max-w-2xl mx-auto text-left">
+      <p class="text-base leading-relaxed" style="color:var(--dim);">这不是单纯讲<span style="color:#fff;">「如何用 Agent 写 UI」</span>，</p>
+      <p class="text-lg leading-relaxed mt-4 tagS">而是如何把 UI 开发从<br><span style="color:#fff;">「人肉判断 + 反复返工」</span>升级成——</p>
+      <p class="text-base leading-relaxed mt-4 mono" style="color:#fff;">Spec 驱动 + Agent 执行<br>+ 自动验收 + 自动修复（达到标准 or 限定 loop/时间）<br>+ 工程师审核 + 设计师审核<br>+ 失败沉淀</p>
+      <p class="text-sm mt-5 tagS">的 AI Native 工程闭环。</p>
+    </div>
+    <p class="text-2xl font-bold mt-10" style="color:#fff;">Q & A</p>
+  </div>
+</section>
+
+<script>
+  // 唯一有动机的动效：进入视口 fade-up
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const io = new IntersectionObserver((es) => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: 0.12 });
+  document.querySelectorAll('[data-r]').forEach(el => { if (reduce) el.classList.add('in'); else io.observe(el); });
+
+  // S8 gate tabs
+  function switchGate(name) {
+    document.querySelectorAll('.gate-panel').forEach(p => p.style.display = p.dataset.panel === name ? 'block' : 'none');
+    document.querySelectorAll('.gate-btn').forEach(b => b.classList.toggle('active', b.dataset.gate === name));
+  }
+  switchGate('gap');
+</script>
+</body>
+</html>

@@ -3,9 +3,9 @@
   "layers": [
     {
       "layer": "seo",
-      "timestamp": "2026-07-12T13:07:15.519Z",
-      "pages": 3,
-      "passed": 21,
+      "timestamp": "2026-07-12T13:49:29.209Z",
+      "pages": 5,
+      "passed": 35,
       "failed": 0,
       "details": {
         "passed": [
@@ -45,72 +45,142 @@
             "message": "exactly one h1 per page"
           },
           {
-            "page": "notes/harness-deck/index.html",
+            "page": "notes/index.html",
             "id": "viewport-meta",
             "message": "viewport meta required"
           },
           {
-            "page": "notes/harness-deck/index.html",
+            "page": "notes/index.html",
             "id": "meta-description",
             "message": "meta description 50-160 chars"
           },
           {
-            "page": "notes/harness-deck/index.html",
+            "page": "notes/index.html",
             "id": "og-tags",
             "message": "og:title + og:description present"
           },
           {
-            "page": "notes/harness-deck/index.html",
+            "page": "notes/index.html",
             "id": "canonical",
             "message": "canonical URL points to longmao.github.io/chengsan-ai"
           },
           {
-            "page": "notes/harness-deck/index.html",
+            "page": "notes/index.html",
             "id": "lang-zh-CN",
             "message": "html lang=\"zh-CN\""
           },
           {
-            "page": "notes/harness-deck/index.html",
+            "page": "notes/index.html",
             "id": "favicon-link",
             "message": "favicon link points to /chengsan-ai/favicon.svg"
           },
           {
-            "page": "notes/harness-deck/index.html",
+            "page": "notes/index.html",
             "id": "h1-unique",
             "message": "exactly one h1 per page"
           },
           {
-            "page": "notes/dataflux/index.html",
+            "page": "notes/harness-v2/index.html",
             "id": "viewport-meta",
             "message": "viewport meta required"
           },
           {
-            "page": "notes/dataflux/index.html",
+            "page": "notes/harness-v2/index.html",
             "id": "meta-description",
             "message": "meta description 50-160 chars"
           },
           {
-            "page": "notes/dataflux/index.html",
+            "page": "notes/harness-v2/index.html",
             "id": "og-tags",
             "message": "og:title + og:description present"
           },
           {
-            "page": "notes/dataflux/index.html",
+            "page": "notes/harness-v2/index.html",
             "id": "canonical",
             "message": "canonical URL points to longmao.github.io/chengsan-ai"
           },
           {
-            "page": "notes/dataflux/index.html",
+            "page": "notes/harness-v2/index.html",
             "id": "lang-zh-CN",
             "message": "html lang=\"zh-CN\""
           },
           {
-            "page": "notes/dataflux/index.html",
+            "page": "notes/harness-v2/index.html",
             "id": "favicon-link",
             "message": "favicon link points to /chengsan-ai/favicon.svg"
           },
           {
-            "page": "notes/dataflux/index.html",
+            "page": "notes/harness-v2/index.html",
+            "id": "h1-unique",
+            "message": "exactly one h1 per page"
+          },
+          {
+            "page": "landings/index.html",
+            "id": "viewport-meta",
+            "message": "viewport meta required"
+          },
+          {
+            "page": "landings/index.html",
+            "id": "meta-description",
+            "message": "meta description 50-160 chars"
+          },
+          {
+            "page": "landings/index.html",
+            "id": "og-tags",
+            "message": "og:title + og:description present"
+          },
+          {
+            "page": "landings/index.html",
+            "id": "canonical",
+            "message": "canonical URL points to longmao.github.io/chengsan-ai"
+          },
+          {
+            "page": "landings/index.html",
+            "id": "lang-zh-CN",
+            "message": "html lang=\"zh-CN\""
+          },
+          {
+            "page": "landings/index.html",
+            "id": "favicon-link",
+            "message": "favicon link points to /chengsan-ai/favicon.svg"
+          },
+          {
+            "page": "landings/index.html",
+            "id": "h1-unique",
+            "message": "exactly one h1 per page"
+          },
+          {
+            "page": "landings/dataflux/index.html",
+            "id": "viewport-meta",
+            "message": "viewport meta required"
+          },
+          {
+            "page": "landings/dataflux/index.html",
+            "id": "meta-description",
+            "message": "meta description 50-160 chars"
+          },
+          {
+            "page": "landings/dataflux/index.html",
+            "id": "og-tags",
+            "message": "og:title + og:description present"
+          },
+          {
+            "page": "landings/dataflux/index.html",
+            "id": "canonical",
+            "message": "canonical URL points to longmao.github.io/chengsan-ai"
+          },
+          {
+            "page": "landings/dataflux/index.html",
+            "id": "lang-zh-CN",
+            "message": "html lang=\"zh-CN\""
+          },
+          {
+            "page": "landings/dataflux/index.html",
+            "id": "favicon-link",
+            "message": "favicon link points to /chengsan-ai/favicon.svg"
+          },
+          {
+            "page": "landings/dataflux/index.html",
             "id": "h1-unique",
             "message": "exactly one h1 per page"
           }
@@ -120,10 +190,10 @@
     },
     {
       "layer": "responsive",
-      "timestamp": "2026-07-12T13:07:15.985Z",
+      "timestamp": "2026-07-12T13:49:35.432Z",
       "viewports": 3,
-      "pages": 3,
-      "passed": 21,
+      "pages": 4,
+      "passed": 28,
       "failed": 0,
       "details": {
         "passed": [
@@ -141,27 +211,40 @@
             }
           },
           {
-            "name": "iphone-se/notes/dataflux/index.html no-horizontal-overflow",
+            "name": "iphone-se/notes/index.html no-horizontal-overflow",
             "evidence": {
               "scrollWidth": 375,
               "viewportW": 375
             }
           },
           {
-            "name": "iphone-se/notes/dataflux/index.html body-font-min-16px",
+            "name": "iphone-se/notes/index.html body-font-min-16px",
             "evidence": {
               "fontSize": 16
             }
           },
           {
-            "name": "iphone-se/notes/harness-deck/index.html no-horizontal-overflow",
+            "name": "iphone-se/landings/index.html no-horizontal-overflow",
             "evidence": {
               "scrollWidth": 375,
               "viewportW": 375
             }
           },
           {
-            "name": "iphone-se/notes/harness-deck/index.html body-font-min-16px",
+            "name": "iphone-se/landings/index.html body-font-min-16px",
+            "evidence": {
+              "fontSize": 16
+            }
+          },
+          {
+            "name": "iphone-se/notes/harness-v2/index.html no-horizontal-overflow",
+            "evidence": {
+              "scrollWidth": 375,
+              "viewportW": 375
+            }
+          },
+          {
+            "name": "iphone-se/notes/harness-v2/index.html body-font-min-16px",
             "evidence": {
               "fontSize": 16
             }
@@ -180,27 +263,40 @@
             }
           },
           {
-            "name": "ipad/notes/dataflux/index.html no-horizontal-overflow",
+            "name": "ipad/notes/index.html no-horizontal-overflow",
             "evidence": {
               "scrollWidth": 768,
               "viewportW": 768
             }
           },
           {
-            "name": "ipad/notes/dataflux/index.html body-font-min-16px",
+            "name": "ipad/notes/index.html body-font-min-16px",
             "evidence": {
               "fontSize": 16
             }
           },
           {
-            "name": "ipad/notes/harness-deck/index.html no-horizontal-overflow",
+            "name": "ipad/landings/index.html no-horizontal-overflow",
             "evidence": {
               "scrollWidth": 768,
               "viewportW": 768
             }
           },
           {
-            "name": "ipad/notes/harness-deck/index.html body-font-min-16px",
+            "name": "ipad/landings/index.html body-font-min-16px",
+            "evidence": {
+              "fontSize": 16
+            }
+          },
+          {
+            "name": "ipad/notes/harness-v2/index.html no-horizontal-overflow",
+            "evidence": {
+              "scrollWidth": 768,
+              "viewportW": 768
+            }
+          },
+          {
+            "name": "ipad/notes/harness-v2/index.html body-font-min-16px",
             "evidence": {
               "fontSize": 16
             }
@@ -219,50 +315,70 @@
             }
           },
           {
-            "name": "desktop/index.html desktop-max-width-720",
+            "name": "desktop/index.html desktop-max-width-960",
             "evidence": {
-              "mainWidth": 720,
-              "expected": 720
+              "mainWidth": 960,
+              "expected": 960
             }
           },
           {
-            "name": "desktop/notes/dataflux/index.html no-horizontal-overflow",
+            "name": "desktop/notes/index.html no-horizontal-overflow",
             "evidence": {
               "scrollWidth": 1280,
               "viewportW": 1280
             }
           },
           {
-            "name": "desktop/notes/dataflux/index.html body-font-min-16px",
+            "name": "desktop/notes/index.html body-font-min-16px",
             "evidence": {
               "fontSize": 16
             }
           },
           {
-            "name": "desktop/notes/dataflux/index.html desktop-max-width-720",
+            "name": "desktop/notes/index.html desktop-max-width-960",
             "evidence": {
-              "mainWidth": 720,
-              "expected": 720
+              "mainWidth": 960,
+              "expected": 960
             }
           },
           {
-            "name": "desktop/notes/harness-deck/index.html no-horizontal-overflow",
+            "name": "desktop/landings/index.html no-horizontal-overflow",
             "evidence": {
               "scrollWidth": 1280,
               "viewportW": 1280
             }
           },
           {
-            "name": "desktop/notes/harness-deck/index.html body-font-min-16px",
+            "name": "desktop/landings/index.html body-font-min-16px",
             "evidence": {
               "fontSize": 16
             }
           },
           {
-            "name": "desktop/notes/harness-deck/index.html desktop-max-width-720",
+            "name": "desktop/landings/index.html desktop-max-width-960",
             "evidence": {
-              "mainWidth": 720,
-              "expected": 720
+              "mainWidth": 960,
+              "expected": 960
+            }
+          },
+          {
+            "name": "desktop/notes/harness-v2/index.html no-horizontal-overflow",
+            "evidence": {
+              "scrollWidth": 1280,
+              "viewportW": 1280
+            }
+          },
+          {
+            "name": "desktop/notes/harness-v2/index.html body-font-min-16px",
+            "evidence": {
+              "fontSize": 16
+            }
+          },
+          {
+            "name": "desktop/notes/harness-v2/index.html desktop-max-width-960",
+            "evidence": {
+              "mainWidth": 960,
+              "expected": 960
             }
           }
         ],
@@ -271,23 +387,23 @@
     },
     {
       "layer": "extension",
-      "timestamp": "2026-07-12T13:07:15.518Z",
+      "timestamp": "2026-07-12T13:49:29.208Z",
       "passed": 7,
       "failed": 0,
       "details": {
         "passed": [
           {
-            "name": "blog-note-auto-route (existing dataflux.mdx → /notes/dataflux/index.html)",
+            "name": "blog-note-auto-route (existing harness-v2.mdx -> /notes/harness-v2/)",
             "evidence": {
-              "path": "dist/notes/dataflux/index.html",
+              "path": "dist/notes/harness-v2/index.html",
               "present": true
             }
           },
           {
-            "name": "landing-auto-route (landings collection not yet added)",
+            "name": "landing-collection-defined (landings content/config.ts declared, dir exists)",
             "evidence": {
-              "expected": "dist/landings/foo/index.html",
-              "status": "should_not_exist_yet"
+              "path": "src/content/landings/",
+              "status": "exists"
             }
           },
           {
@@ -297,27 +413,28 @@
             }
           },
           {
-            "name": "mdx-components-reusable (Hero/Pricing/FAQ/CTA not yet built)",
+            "name": "mdx-components-reusable (Hero/Pricing/FAQ/CTA not yet built - gap noted)",
             "evidence": {
-              "gap": "src/components/Hero.astro missing — to_be_added"
+              "gap": "src/components/Hero.astro not_implemented"
             }
           },
           {
-            "name": "notes-index-page (currently navbar links but file missing)",
+            "name": "notes-index-page (route exists)",
             "evidence": {
-              "gap": "src/pages/notes/index.astro not_implemented"
+              "path": "src/pages/notes/index.astro"
             }
           },
           {
-            "name": "landings-index-page (route not yet created)",
+            "name": "landings-index-page (route exists)",
             "evidence": {
-              "gap": "whole landings/* path not yet built"
+              "path": "src/pages/landings/index.astro"
             }
           },
           {
-            "name": "git-push-deploy-cycle-verify-workflow (not yet added)",
+            "name": "git-push-deploy-cycle-verify-workflow (exists)",
             "evidence": {
-              "gap": ".github/workflows/verify.yml to_add"
+              "path": ".github/workflows/verify.yml",
+              "present": true
             }
           }
         ],

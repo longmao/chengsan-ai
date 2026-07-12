@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
   const notes = await getCollection('notes');
@@ -10,28 +10,125 @@ export async function getStaticPaths() {
   }));
 }
 
+interface Props {
+  note: CollectionEntry<'notes'>;
+}
+
 const { note } = Astro.props;
 const { Content } = await note.render();
 ---
 
 <Layout title={note.data.title} description={note.data.description}>
-  <article>
-    <header class="note-header">
-      <h1>{note.data.title}</h1>
-      <p class="meta">{note.data.pubDate.toISOString().slice(0, 10)}</p>
+  <div class="site-shell">
+
+    <header class="site-header">
+      <a href="/chengsan-ai/" class="brand">chengsan.ai</a>
+      <nav class="site-nav">
+        <a href="/chengsan-ai/">Index</a>
+        <a href="/chengsan-ai/notes/" aria-current="page">Notes</a>
+        <a href="/chengsan-ai/landings/">Landings</a>
+      </nav>
     </header>
-    <div class="note-content">
-      <Content />
-    </div>
-    <footer class="note-footer">
-      <a href="/chengsan-ai/">← 回到首页</a>
+
+    <main class="site-main">
+
+      <article>
+        <span class="kicker-accent">note</span>
+        <h1>{note.data.title}</h1>
+        <p class="meta">
+          {note.data.pubDate.toISOString().slice(0, 10)}
+          {note.data.updatedDate && (
+            <>
+              <span class="dim"> · </span>
+              updated {note.data.updatedDate.toISOString().slice(0, 10)}
+            </>
+          )}
+        </p>
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        {note.data.externalUrl && (
+          <p class="external-cta">
+            <a class="btn btn-primary" href={note.data.externalUrl} target="_blank" rel="noopener">
+              在外部平台打开
+            </a>
+          </p>
+        )}
+      </article>
+
+      <hr class="calm-divider" />
+
+      <p><a href="/chengsan-ai/notes/">← 回到笔记索引</a></p>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>chengsan.ai · 杨总 · AI Native</p>
     </footer>
-  </article>
+
+  </div>
 </Layout>
 
 <style>
-  .note-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); }
-  .note-content :global(p) { font-family: var(--font-serif); font-size: 1.0625rem; }
-  .note-content :global(h2), .note-content :global(h3) { font-family: var(--font-serif); }
-  .note-footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); }
+  article .meta {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-lg);
+  }
+  .meta .dim {
+    color: var(--color-text-subtle);
+  }
+  .external-cta {
+    margin-top: var(--space-lg);
+  }
+  /* Prose: editorial calm chrome, single carrier headings, no glass cards */
+  .prose :global(p) {
+    font-family: var(--font-serif);
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    margin-bottom: var(--space-sm);
+  }
+  .prose :global(h2) {
+    font-family: var(--font-display);
+    margin: var(--space-lg) 0 var(--space-sm);
+  }
+  .prose :global(h3) {
+    font-family: var(--font-display);
+    margin: var(--space-md) 0 var(--space-xs);
+  }
+  .prose :global(code) {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    padding: 0.15em 0.4em;
+    border-radius: 3px;
+    font-size: 0.875em;
+  }
+  .prose :global(pre) {
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: var(--space-md) 0;
+  }
+  .prose :global(blockquote) {
+    border-left: 2px solid var(--color-accent);
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    margin: var(--space-md) 0;
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--color-text-muted);
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.5rem;
+  }
+  .prose :global(a) {
+    color: var(--color-link);
+  }
 </style>

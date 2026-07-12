@@ -21,19 +21,19 @@ async function exists(p) {
 }
 
 async function main() {
-  // 1) blog note auto-route — existing dataflux.mdx should produce dist/notes/dataflux/
-  const noteDatafluxExists = await exists(`${DIST}/notes/dataflux/index.html`);
-  assert('blog-note-auto-route (existing dataflux.mdx → /notes/dataflux/index.html)',
-    noteDatafluxExists,
-    { path: `${DIST}/notes/dataflux/index.html`, present: noteDatafluxExists });
+  // 1) blog note auto-route: real existing notes
+  const harnessV2Route = await exists(`${DIST}/notes/harness-v2/index.html`);
+  assert('blog-note-auto-route (existing harness-v2.mdx -> /notes/harness-v2/)',
+    harnessV2Route,
+    { path: `${DIST}/notes/harness-v2/index.html`, present: harnessV2Route });
 
-  // 2) landing auto-route — gap: landings collection not yet added
-  const landingFooExists = await exists(`${DIST}/landings/foo/index.html`);
-  assert('landing-auto-route (landings collection not yet added)',
-    !landingFooExists,
-    { expected: `${DIST}/landings/foo/index.html`, status: 'should_not_exist_yet' });
+  // 2) landing auto-route: gap - landings collection defined but no landing MDX yet
+  const landingsCollectionExists = await exists(`${SRC}/content/landings/`);
+  assert('landing-collection-defined (landings content/config.ts declared, dir exists)',
+    landingsCollectionExists,
+    { path: `${SRC}/content/landings/`, status: landingsCollectionExists ? 'exists' : 'not_yet' });
 
-  // 3) frontmatter schema — required fields title + description
+  // 3) frontmatter schema: title + description + publishedAt
   let schemaOk = false;
   const cfgPath = `${SRC}/content/config.ts`;
   if (await exists(cfgPath)) {
@@ -43,29 +43,29 @@ async function main() {
   assert('frontmatter-schema-required-fields (title, description)',
     schemaOk, { cfgPath });
 
-  // 4) mdx-components — Hero/Pricing/FAQ/CTA reusable (gap: components dir empty)
+  // 4) mdx-components: gap - components dir empty
   const heroComponentExists = await exists(`${SRC}/components/Hero.astro`);
-  assert('mdx-components-reusable (Hero/Pricing/FAQ/CTA not yet built)',
+  assert('mdx-components-reusable (Hero/Pricing/FAQ/CTA not yet built - gap noted)',
     !heroComponentExists,
-    { gap: `${SRC}/components/Hero.astro` + ' missing — to_be_added' });
+    { gap: `${SRC}/components/Hero.astro` + ' not_implemented' });
 
-  // 5) /notes index page — gap: navbar links but file missing
-  const notesIndexExists = await exists(`${SRC}/pages/notes/index.astro`);
-  assert('notes-index-page (currently navbar links but file missing)',
-    !notesIndexExists,
-    { gap: `${SRC}/pages/notes/index.astro` + ' not_implemented' });
+  // 5) /notes index page (built)
+  const notesIndexRoute = await exists(`${SRC}/pages/notes/index.astro`);
+  assert('notes-index-page (route exists)',
+    notesIndexRoute,
+    { path: `${SRC}/pages/notes/index.astro` });
 
-  // 6) /landings index page — gap: route not created
-  const landingsIndexExists = await exists(`${SRC}/pages/landings/index.astro`);
-  assert('landings-index-page (route not yet created)',
-    !landingsIndexExists,
-    { gap: 'whole landings/* path not yet built' });
+  // 6) /landings index page (built)
+  const landingsIndexRoute = await exists(`${SRC}/pages/landings/index.astro`);
+  assert('landings-index-page (route exists)',
+    landingsIndexRoute,
+    { path: `${SRC}/pages/landings/index.astro` });
 
-  // 7) git-push-deploy-cycle verify workflow — gap: verify.yml not added
+  // 7) git-push-deploy-cycle verify workflow (exists in .github/workflows/)
   const verifyYmlExists = await exists('.github/workflows/verify.yml');
-  assert('git-push-deploy-cycle-verify-workflow (not yet added)',
-    !verifyYmlExists,
-    { gap: '.github/workflows/verify.yml to_add' });
+  assert('git-push-deploy-cycle-verify-workflow (exists)',
+    verifyYmlExists,
+    { path: '.github/workflows/verify.yml', present: verifyYmlExists });
 
   const result = {
     layer: 'extension',

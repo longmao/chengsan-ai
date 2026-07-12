@@ -1,0 +1,46 @@
+---
+title: "Harness · UI 开发的工程实践"
+description: "海信 Qoder 109 套系统实证 · 单 Spec 上限 · 跨模型抗幻觉 · 工具链 v2 重设计"
+pubDate: 2026-07-10
+tags: ["agent", "harness", "engineering"]
+externalUrl: "/decks/harness-v2.html"
+---
+
+import Layout from '../../layouts/Layout.astro';
+
+<Layout title="Harness · UI 开发的工程实践" description="海信 Qoder 109 套系统实证给 agent 的三条工程化 bar · 工具链 v2 重设计">
+
+这是 deck v2（dual-layer calm chrome 重设计版）的笔记页。deck 完整 slide 在外部容器内打开。
+
+## 看 deck
+
+deck 是单文件 HTML，独立排版与动效。chengsan-ai chrome 不污染 deck。
+
+[打开 deck (/decks/harness-v2.html) →](/decks/harness-v2.html)
+
+## 三条 bar (海信实证)
+
+每条 bar 都是 v2 deck 里的硬约束：
+
+1. 单 Spec ≤ 100 行 · 最长 150 行。超 10 轮人机修正 = Spec 质量不够，回炉重对齐。
+2. 最小粒度并行 · 一次修 1 个缺陷 > 一次全修。
+3. 跨模型抗幻觉 · 测试 / 验证用与编码不同的 AI 模型（GLM session 走一遍）。
+
+## v1 到 v2 的差距
+
+v1 deck 因为 skill execution gap 暴露多问题：
+- eyebrow 满屏
+- 版式单一
+- glass-glow 全开
+- motion 无动机
+
+v2 dual-layer calm + accent-spread ≤ 1 / section · calm-ratio ≥ 50% · 在新 skill gates 里跑过。
+
+## 关联资源
+
+- 完整 deck：`/decks/harness-v2.html` (self-hosted in chengsan-ai public/)
+- 原本 deck host：voluble-pika-8623d2.netlify.app (Netlify 部署)
+- 配置文件：`docs/REDESIGN_SPEC.md` (chengsan-ai 用 taste skill redesign 的 spec)
+- 记忆点：`design-taste-calibration`（v1/v2 对比）
+
+</Layout>

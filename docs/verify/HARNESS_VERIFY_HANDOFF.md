@@ -16,12 +16,12 @@ memory add rules        ← 沉淀下一轮 spec add case
 ```
 
 每轮验收 = 一个完整的 **Loop**：
-1. **假设** — 站点满足某个 invariant
-2. **拆 mechanism** — 具体 sub-check
-3. **最小实验** — 跑对应 runner
-4. **证据** — report.json + 数字
-5. **判定** — pass/warn/fail，都推进下一个 fix
-6. **沉淀** — fail 进 Linear issue / warn 进 memory / pass 归档
+1. **假设**：站点满足某个 invariant
+2. **拆 mechanism**：具体 sub-check
+3. **最小实验**：跑对应 runner
+4. **证据**：report.json + 数字
+5. **判定**：pass/warn/fail，都推进下一个 fix
+6. **沉淀**：fail 进 Linear issue / warn 进 memory / pass 归档
 
 ## 二、21 个 Scenario 分组
 
