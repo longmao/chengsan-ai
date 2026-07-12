@@ -1,0 +1,51 @@
+name: BDD Loop Harness Verify
+
+# On push to main: build → install chromium → run verify-all → upload report.
+# Per BDD × Loop × Harness spec: 21 scenarios (seo 7 / responsive 7 / extension 7)
+# are auto-asserted; failures surface in artifact download + run summary,
+# but DO NOT fail the job (humans triage via docs/verify/<date>/report.md).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium --with-deps
+
+      - name: Run verify-all (3 layers × 7 scenarios)
+        run: node scripts/verify-all.mjs
+
+      - name: Upload verify report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verify-report
+          path: docs/verify/
+          retention-days: 30
