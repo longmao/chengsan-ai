@@ -20,7 +20,9 @@ const PAGES = [
   '/notes/dataflux/index.html',
   '/notes/harness-deck/index.html',
 ];
-const OUT_DIR = resolve('docs/visual-recordings');
+// Default: store outside the repo so visual recordings never accidentally
+// get pushed to git / served on gh-pages. Override with env OUT_DIR.
+const OUT_DIR = process.env.OUT_DIR || `${process.env.HOME}/.cache/chengsan-ai/visual-recordings`;
 
 await mkdir(OUT_DIR, { recursive: true });
 const browser = await chromium.launch();
