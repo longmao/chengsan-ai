@@ -1,4 +1,2 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://longmao.github.io/chengsan-ai/sitemap-index.xml
