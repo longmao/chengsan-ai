@@ -1,0 +1,45 @@
+---
+title: "Harness · Agent 工程实践"
+description: "海信 Qoder 109 套系统实证给 agent 加 3 条 bar · AI 老师重定价"
+pubDate: 2026-07-10
+tags: ["agent", "harness", "工程实践"]
+---
+
+## 这是什么
+
+**Harness** = 让 AI agent 在真实企业系统里跑出 95%+ 完成度的工程实践总纲。
+
+这条路线的源头数据：海信在 109 套企业系统上用 Qoder 跑出的实证——
+**单 Spec ≤100 行** spec 比 300 行大 spec 首次完成度 60% → 95%，改轮数
+50+ → 3-5；测试与编码用不同模型抗幻觉。
+
+[海信 Harness 完整 deck →](https://voluble-pika-8623d2.netlify.app/)（独
+立 Netlify 站点）
+
+## 三条 bar（默认内化）
+
+1. **单 Spec ≤100 行 / 最长 150 行**。>100 必拆；>10 轮人机修正 = Spec 质
+   量不够，回炉重对齐。
+2. **最小粒度并行**。一次修 1 个缺陷 > 全修；100 用例分 10 批
+   / 10 context 跑 > 合并 context 跑。
+3. **跨模型对抗幻觉**。测试 / 验证环节故意用**与编码 Agent 不同的模
+   型**——本机 minimax 三档同模型拿不到这层时，切 GLM session 走一遍。
+
+## 为什么这是 AGI 之前的必经之路
+
+LLM 现在的不靠谱不是参数不够，是 **Spec 化不够 + 跨模型验证不够**。
+Harness 把这两个缺口变成 agent loop 的内置 bar——不靠运气，靠工程。
+
+## 我怎么用
+
+- `~/work/ai-fleet/method/HARNESS_BAR.md` —— 把三条 bar 内化到所有
+  subagent 任务拆分、Spec 撰写、验证环节
+- `~/work/ai-fleet/docs/LAUNCHD_7X24_HANDOFF.md` —— launchd 实战版
+- `~/claude/CLAUDE.md` "海信 Harness 实证" 段 —— 全 session 默认内化
+
+## 关联阅读
+
+- "AI 老师重定价"：本模型写 Spec，由不同模型 review——不是工具切换，
+  是认知流程重新挂载。
+- Harness 命名：选这个名字是 maker's mark——[AI Native OS](链接待补)
+  框架下的"工具体系"。

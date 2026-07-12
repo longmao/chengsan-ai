@@ -1,0 +1,37 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const notes = await getCollection('notes');
+  return notes.map(note => ({
+    params: { slug: note.slug },
+    props: { note },
+  }));
+}
+
+const { note } = Astro.props;
+const { Content } = await note.render();
+---
+
+<Layout title={note.data.title} description={note.data.description}>
+  <article>
+    <header class="note-header">
+      <h1>{note.data.title}</h1>
+      <p class="meta">{note.data.pubDate.toISOString().slice(0, 10)}</p>
+    </header>
+    <div class="note-content">
+      <Content />
+    </div>
+    <footer class="note-footer">
+      <a href="/chengsan-ai/">← 回到首页</a>
+    </footer>
+  </article>
+</Layout>
+
+<style>
+  .note-header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--color-border); }
+  .note-content :global(p) { font-family: var(--font-serif); font-size: 1.0625rem; }
+  .note-content :global(h2), .note-content :global(h3) { font-family: var(--font-serif); }
+  .note-footer { margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--color-border); }
+</style>

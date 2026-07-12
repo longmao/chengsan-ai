@@ -1,0 +1,50 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = '杨总 · AI Native 个人站' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} · chengsan-ai</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/chengsan-ai/favicon.svg" />
+    <link rel="stylesheet" href="/chengsan-ai/_astro/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a href="/chengsan-ai/" class="brand">chengsan.ai</a>
+      <nav class="site-nav">
+        <a href="/chengsan-ai/">首页</a>
+        <a href="/chengsan-ai/notes">笔记</a>
+      </nav>
+    </header>
+    <main class="site-main">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>© 杨总 · AI Native · <a href="https://github.com/longmao/chengsan-ai">源码</a></p>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--color-border, #e5e5e5);
+  }
+  .brand { font-weight: 600; letter-spacing: -0.01em; text-decoration: none; color: inherit; }
+  .site-nav a { margin-left: 1.5rem; text-decoration: none; color: var(--color-text-muted, #666); }
+  .site-main { max-width: 720px; margin: 0 auto; padding: 4rem 2rem; }
+  .site-footer { padding: 4rem 2rem; border-top: 1px solid var(--color-border, #e5e5e5); text-align: center; color: var(--color-text-muted, #999); font-size: 0.875rem; }
+  .site-footer a { color: inherit; }
+</style>

@@ -1,0 +1,105 @@
+/* chengsan-ai · global styles
+   Editorial typography · 中文优先 · 留白多 · 不堆术语
+*/
+
+:root {
+  --color-bg: #fafaf9;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-text-subtle: #999999;
+  --color-border: #e5e5e5;
+  --color-accent: #2563eb;
+  --color-link: #1a1a1a;
+  --color-link-hover: #2563eb;
+
+  --font-serif: "Source Serif Pro", "Source Han Serif SC", "Noto Serif CJK SC", Georgia, serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+
+  --measure: 38rem;
+  --leading: 1.7;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f0f0f;
+    --color-text: #e5e5e5;
+    --color-text-muted: #a0a0a0;
+    --color-text-subtle: #6a6a6a;
+    --color-border: #2a2a2a;
+    --color-accent: #60a5fa;
+    --color-link: #e5e5e5;
+    --color-link-hover: #60a5fa;
+  }
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 17px;
+  line-height: var(--leading);
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+
+h1 { font-size: 2.5rem; margin-bottom: 1.5rem; }
+h2 { font-size: 1.5rem; margin-top: 2.5rem; margin-bottom: 1rem; }
+h3 { font-size: 1.25rem; margin-top: 2rem; margin-bottom: 0.75rem; }
+
+p, li { max-width: var(--measure); margin-bottom: 1rem; }
+
+p { color: var(--color-text); }
+
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+a:hover { color: var(--color-link-hover); }
+
+ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+
+blockquote {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: rgba(127, 127, 127, 0.1);
+  padding: 0.15em 0.35em;
+  border-radius: 3px;
+}
+
+pre {
+  background: rgba(127, 127, 127, 0.08);
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+pre code { background: transparent; padding: 0; }
+
+.meta { color: var(--color-text-muted); font-size: 0.875rem; }

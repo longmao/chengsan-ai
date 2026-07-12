@@ -1,0 +1,19 @@
+{
+  "name": "chengsan-ai",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "杨总个人 AI Native 站 · longmao.github.io/chengsan-ai",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "astro": "^4.16.18",
+    "@astrojs/mdx": "^3.1.9",
+    "@astrojs/sitemap": "^3.2.1"
+  }
+}
